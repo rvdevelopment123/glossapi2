@@ -63,9 +63,9 @@ echo "Success";
 //                var_dump($groupID);
               //  echo "propertyName".$propertyName;
                 //Find in the database
-            }else{
-                //Do to other attributes here like Firstname, Lastname etc
-            }
+//            }else{
+//                //Do to other attributes here like Firstname, Lastname etc
+//            }
             //var_dump($datahs);
     }
 
