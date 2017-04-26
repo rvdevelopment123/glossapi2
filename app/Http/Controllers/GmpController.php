@@ -30,8 +30,15 @@ class GmpController extends Controller
 
     public function hswebhook(){
             //$testJson = '[{"objectId":8501,"propertyName":"hs_lead_status","propertyValue":"DEAL","changeSource":"API","eventId":4083751833,"subscriptionId":3167,"portalId":3088964,"appId":39543,"occurredAt":1493051724096,"subscriptionType":"contact.propertyChange","attemptNumber":0}]';
-            $testJson = file_get_contents("php://input");
-            $datahs = json_decode($testJson,true);
+
+        $testJson = file_get_contents("php://input");
+        $file = fopen("test.txt","a+");
+        $data .= "JSONSTART ". $testJson;
+        echo fwrite($file,$data);
+        fclose($file);
+
+
+        $datahs = json_decode($testJson,true);
             $objectId = $datahs[0]["objectId"];
             $propertyName = $datahs[0]["propertyName"];
             $propertyValue = $datahs[0]["propertyValue"];
