@@ -36,37 +36,37 @@ class GmpController extends Controller
             echo fwrite($file,$json);
             fclose($file);
 
-            $datahs = json_decode($json,true);
-            $objectId = $datahs[0]["objectId"];
-            $propertyName = $datahs[0]["propertyName"];
-            $propertyValue = $datahs[0]["propertyValue"];
-
-
-            $contact = Contact::where("vid",$objectId)->first();
-            if($propertyName == "hs_lead_status"){
-                $arrGroupID = array(['579048','NEW'],
-                    ['579466','RESPONSE'],
-                    ['579531','WARM'],
-                    ['579657','DEAL']);
-
-                $groupID = "";
-                foreach($arrGroupID as $data){
-                  if($data[1] == $propertyValue){
-                      $groupID = $data[0];
-                  }
-                }
-                $contact->GroupId = $groupID;
-
-                $contact->save();
-
-                $this->update_gmp($groupID,$contact->LeadId,'groupId');
-                var_dump($groupID);
-              //  echo "propertyName".$propertyName;
-                //Find in the database
-            }else{
-                //Do to other attributes here like Firstname, Lastname etc
-            }
-            //var_dump($datahs);
+//            $datahs = json_decode($json,true);
+//            $objectId = $datahs[0]["objectId"];
+//            $propertyName = $datahs[0]["propertyName"];
+//            $propertyValue = $datahs[0]["propertyValue"];
+//
+//
+//            $contact = Contact::where("vid",$objectId)->first();
+//            if($propertyName == "hs_lead_status"){
+//                $arrGroupID = array(['579048','NEW'],
+//                    ['579466','RESPONSE'],
+//                    ['579531','WARM'],
+//                    ['579657','DEAL']);
+//
+//                $groupID = "";
+//                foreach($arrGroupID as $data){
+//                  if($data[1] == $propertyValue){
+//                      $groupID = $data[0];
+//                  }
+//                }
+//                $contact->GroupId = $groupID;
+//
+//                $contact->save();
+//
+//                $this->update_gmp($groupID,$contact->LeadId,'groupId');
+//                var_dump($groupID);
+//              //  echo "propertyName".$propertyName;
+//                //Find in the database
+//            }else{
+//                //Do to other attributes here like Firstname, Lastname etc
+//            }
+//            //var_dump($datahs);
 
         echo "Success";
     }
