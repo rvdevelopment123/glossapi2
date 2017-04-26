@@ -33,8 +33,7 @@ class GmpController extends Controller
 
         $testJson = file_get_contents("php://input");
         $file = fopen("test.txt","a+");
-        $data .= "JSONSTART ". $testJson;
-        echo fwrite($file,$data);
+        echo fwrite($file,$testJson);
         fclose($file);
 
 
