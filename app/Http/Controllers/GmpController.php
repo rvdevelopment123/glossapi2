@@ -33,7 +33,8 @@ class GmpController extends Controller
 //Samepl When adding contact
 //[{"eventId":"1","subscriptionId":"3275","portalId":"2845818","occurredAt":"1493224084569","subscriptionType":"contact.creation","attemptNumber":"0","objectId":"123","changeSource":"CRM","changeFlag":"NEW","appId":"39543"}]
         //$json = '[{"objectId":10801,"changeFlag":"NEW","changeSource":"SALES","eventId":2955789214,"subscriptionId":3275,"portalId":3088964,"appId":39543,"occurredAt":1493224673083,"subscriptionType":"contact.creation","attemptNumber":0}]';
-
+//Delete
+     //   $json = '[{"objectId":10851,"changeFlag":"DELETED","changeSource":"IMPORT","eventId":3812562495,"subscriptionId":3452,"portalId":3088964,"appId":39543,"occurredAt":1494261018940,"subscriptionType":"contact.deletion","attemptNumber":0}]';
         $json = file_get_contents('php://input');
         $file = fopen("test.txt","a+");
         echo fwrite($file,$json);
@@ -85,7 +86,8 @@ class GmpController extends Controller
                     }
 
                     $this->update_gmp($propertyValue,$contact->LeadId,$propertyName);
-                    break;
+
+                break;
 
                 case "contact.creation":
                     echo "objectId".$objectId;
@@ -103,8 +105,17 @@ class GmpController extends Controller
 
                     }
                   //  var_dump($hsContact);
+                break;
 
-                    break;
+                case "contact.deletion":
+                    $contact = Contact::where("vid",$objectId);
+
+                    $LeadId = $contact->first()->LeadId;
+                    $contact->delete();
+
+                    //Delete Group
+                    $this->update_gmp("580684",$LeadId,"groupId");
+                break;
 
             }
 
