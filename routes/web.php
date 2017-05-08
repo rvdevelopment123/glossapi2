@@ -16,6 +16,7 @@ Route::get('/', function () {
 });
 
 Route::get('gmp','GmpController@index');
+Route::get('hswebhook','GmpController@hswebhook');
 Route::post('hswebhook','GmpController@hswebhook');
 
 Route::group(['middleware' => ['web', 'auth']], function ($router) {

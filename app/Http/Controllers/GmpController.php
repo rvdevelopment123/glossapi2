@@ -15,10 +15,10 @@ class GmpController extends Controller
 
     public function index(){
 
-        $arrGroupID = array(['579048','NEW'],
-            ['579466','RESPONSE'],
-            ['579531','WARM'],
-            ['579657','DEAL']);
+        $arrGroupID = array(['580651','NEW'],
+            ['580652','RESPONSE'],
+            ['580653','WARM'],
+            ['580654','DEAL']);
 
         foreach($arrGroupID as $data){
             $contacts =  $this->gmp_api($data[0]);
@@ -29,42 +29,66 @@ class GmpController extends Controller
     }
 
     public function hswebhook(){
-            //$testJson = '[{"objectId":8501,"propertyName":"hs_lead_status","propertyValue":"DEAL","changeSource":"API","eventId":4083751833,"subscriptionId":3167,"portalId":3088964,"appId":39543,"occurredAt":1493051724096,"subscriptionType":"contact.propertyChange","attemptNumber":0}]';
+        $json = '[{"objectId":10801,"propertyName":"email","propertyValue":"REYCHANGE","changeSource":"API","eventId":4083751833,"subscriptionId":3167,"portalId":3088964,"appId":39543,"occurredAt":1493051724096,"subscriptionType":"contact.propertyChange","attemptNumber":0}]';
+//Samepl When adding contact
+//[{"eventId":"1","subscriptionId":"3275","portalId":"2845818","occurredAt":"1493224084569","subscriptionType":"contact.creation","attemptNumber":"0","objectId":"123","changeSource":"CRM","changeFlag":"NEW","appId":"39543"}]
+        //$json = '[{"objectId":10801,"changeFlag":"NEW","changeSource":"SALES","eventId":2955789214,"subscriptionId":3275,"portalId":3088964,"appId":39543,"occurredAt":1493224673083,"subscriptionType":"contact.creation","attemptNumber":0}]';
 
-
-            $json = file_get_contents('php://input');
-
-        $file = fopen("test.txt","a+");
-        echo fwrite($file,$json);
-        fclose($file);
-        echo "Success";
+       // $json = file_get_contents('php://input');
+       // $file = fopen("test.txt","a+");
+       // echo fwrite($file,$json);
+       // fclose($file);
 
             $datahs = json_decode($json,true);
             $objectId = $datahs[0]["objectId"];
-            $propertyName = $datahs[0]["propertyName"];
-            $propertyValue = $datahs[0]["propertyValue"];
             $subscriptionType = $datahs[0]["subscriptionType"];
 
 
-            $contact = Contact::where("vid",$objectId)->first();
+
             switch($subscriptionType){
                 case "contact.propertyChange":
-                    $arrGroupID = array(['579048','NEW'],
-                        ['579466','RESPONSE'],
-                        ['579531','WARM'],
-                        ['579657','DEAL']);
-                    $groupID = "";
-                    foreach($arrGroupID as $data){
-                        if($data[1] == $propertyValue){
-                            $groupID = $data[0];
+                    $contact = Contact::where("vid",$objectId)->first();
+                    $propertyName = $datahs[0]["propertyName"];
+                    $propertyValue = $datahs[0]["propertyValue"];
+                    if($propertyName == "hs_lead_status"){
+                        $arrGroupID = array(['580651','NEW'],
+                            ['580652','RESPONSE'],
+                            ['580653','WARM'],
+                            ['580654','DEAL']);
+                        $groupID = "";
+                        foreach($arrGroupID as $data){
+                            if($data[1] == $propertyValue){
+                                $groupID = $data[0];
+                            }
                         }
+                        $contact->GroupId = $groupID;
+                    }else{
+                        if($propertyName = "email")
+                            $propertyName = "E-Mail";
+
+                        $contact->{$propertyName} = $propertyValue;
                     }
-                    $contact->GroupId = $groupID;
+
                     $contact->save();
-                    $this->update_gmp($groupID,$contact->LeadId,'groupId');
+                   // $this->update_gmp($groupID,$contact->LeadId,'groupId');
                     break;
 
                 case "contact.creation":
+                    echo "objectId".$objectId;
+                    $hsContact = $this->hscontact_vid($objectId);
+                    $isAdded = $this->isAddedInDbase($objectId);
+                    echo $isAdded;
+                    if($isAdded){
+                        echo "Already Exist";
+                    }else{
+                        echo "Not Exist in the database. TODO Add it";
+
+                        echo "Add it as well in the GMP<br/><br/>";
+                        $this->gmp_addcontact($hsContact);
+                        $this->dbase_addcontact($hsContact);
+
+                    }
+                  //  var_dump($hsContact);
 
                     break;
 
@@ -76,12 +100,18 @@ class GmpController extends Controller
 
     }
 
+    public function isAddedInDbase($vid){
+        $contact = Contact::where("vid",$vid)->count();
+
+        return $contact > 0 ? true : false;
+    }
+
     public function update_gmp($groupID,$userId,$fieldname){
 
 
         $url = 'https://rightonprofit.net/glu/webservice/';
-        $myemail = "admin@directcapitalsource.info";
-        $mypass = "Capital1";
+        $myemail = "subscribe@rightonmediagroup.com";
+        $mypass = "HuF6Ybzu6Oqd";
         $fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'UserField'=>$fieldname,'UserData'=>$groupID,'userId'=>$userId,'svr'=>'UpdateExistingUser');
         //$fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'UserField'=>'GroupId','UserData'=>$groupID,'userId'=>$userId,'svr'=>'UpdateExistingUser');
         $fields=json_encode($fields);
@@ -139,11 +169,13 @@ class GmpController extends Controller
             echo "testset";
     }
 
-
+    /**
+     *This section is to Search Contact to GMP
+     */
     public function gmp_api($groupID){
         $url = 'https://rightonprofit.net/glu/webservice/';
-        $myemail = "admin@directcapitalsource.info";
-        $mypass = "Capital1";
+        $myemail = "subscribe@rightonmediagroup.com";
+        $mypass = "HuF6Ybzu6Oqd";
         $fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'searchType'=>'groupId','groupId'=>$groupID,'svr'=>'SearhByUserInput');
         $fields=json_encode($fields);
         $ch = curl_init();
@@ -152,6 +184,50 @@ class GmpController extends Controller
         curl_setopt($ch,CURLOPT_POSTFIELDS, array("Data"=>$fields));
         curl_setopt($ch,CURLOPT_RETURNTRANSFER, 1);
         $result = curl_exec($ch);
+        curl_close($ch);
+        $contacts = json_decode($result, true);
+        return $contacts;
+    }
+    /**
+     *This section is to add Contact to GMP
+     */
+    public function gmp_addcontact($contact){
+
+        $mycontact = [];
+        $mycontact["zip"] = "";
+        $mycontact["phone"] = "";
+        foreach($contact as $key=>$value){
+            if(isset($contact[$key]["value"]["value"]))
+                $mycontact[$contact[$key]["property"]] = $contact[$key]["value"]["value"];
+        }
+
+
+        $url = 'https://rightonprofit.net/glu/webservice/';
+        $myemail = "subscribe@rightonmediagroup.com";
+        $mypass = "HuF6Ybzu6Oqd";
+        $fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'GroupId'=>("580422"),'Country'=>("USA / Canada"),'ContactDataExp'=>
+            array(
+                array("USER"=>array("First_Name"=>$mycontact["firstname"], "Last_Name"=>$mycontact["lastname"], "Email_Id"=>$mycontact["email"], "Website"=>"",
+                    "Company"=>"", "Phone"=>$mycontact["phone"],  "Zip"=>$mycontact["zip"],
+                    "Address"=>"",
+                    )),),'svr'=>'ImportGroupContactFile');
+
+        $fields=json_encode($fields);
+        $ch = curl_init();
+        curl_setopt($ch,CURLOPT_URL,$url);
+        curl_setopt($ch,CURLOPT_POST,count($fields));
+        curl_setopt($ch,CURLOPT_POSTFIELDS, array("Data"=>$fields));
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($ch);
+        $curl_errors = curl_error($ch);
+
+
+
+        echo "curl Errors: " . $curl_errors;
+        echo "\nResponse: " . $result;
+        echo "testset";
+
+
         curl_close($ch);
         $contacts = json_decode($result, true);
         return $contacts;
@@ -234,4 +310,84 @@ class GmpController extends Controller
       //  var_dump($value1);
       //  $this->hs_dbase($results);
     }
+
+    function dbase_addcontact($contactinfo){
+        var_dump($contactinfo);
+        $contact =  new Contact;
+        $arrHBvalidInput = array('firstname','lastname','phone');
+        foreach($contactinfo as $key=>$value){
+            $property =$contactinfo[$key]["property"];
+            if(isset($property)){
+               // $contact->$mycontact[$contact[$key]["property"]] = $contactinfo[$key]["value"]["value"];
+                if(isset($contactinfo[$key]["value"]["value"])){
+                    $myvalue = $contactinfo[$key]["value"]["value"];
+                }else{
+                    $myvalue = $contactinfo[$key]["value"];
+                }
+                if($property == "email"){
+                    $property = "E-Mail";
+                }
+                if(in_array($property, $arrHBvalidInput)){
+                    $property = ucwords($contactinfo[$key]["property"]);
+                }
+echo $property."<br />";
+                $isexist = Contact::checkfield($property);
+                $contact->$property = $myvalue;
+               // var_dump($contactinfo[$key]["value"]["value"]);
+                echo "<hr/>";
+            }
+        }
+       $contact->save();
+       // $contact->gotDuplicates("LeadId");
+    }
+
+    function hscontact_vid($vid){
+        $hapikey = "2b8a991b-a9d9-40ef-a29e-29ede6703c4c";
+        $endpoint = 'https://api.hubapi.com/contacts/v1/contact/vid/'.$vid.'/profile?hapikey='.$hapikey;
+        $ch = @curl_init();
+        @curl_setopt($ch, CURLOPT_GET, true);
+        @curl_setopt($ch, CURLOPT_URL, $endpoint);
+        @curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        @curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = @curl_exec($ch);
+        $status_code = @curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curl_errors = curl_error($ch);
+        @curl_close($ch);
+        $results = json_decode($response, true);
+        $dataInput =  $this->getProperty($results["properties"]);
+        $dataMainInput =  $this->getMainProperty($results);
+        $allData = array_merge($dataInput, $dataMainInput);
+        return $allData;
+    }
+
+    function getProperty($contactData){
+        $dataInput = [];
+        $arrHBvalidInput = array('email','firstname','lastname','phone');
+        foreach($contactData as $key=>$value){
+            $mykey = str_replace('-', '', strtolower($key));
+            if(in_array($mykey, $arrHBvalidInput)){
+                if($value != ""){
+                    array_push($dataInput, array('property' => $mykey,'value' => $value));
+                }
+
+            }
+        }
+        return $dataInput;
+    }
+
+    function getMainProperty($contactData){
+        $dataInput = [];
+
+        foreach($contactData as $key=>$value){
+            if(!is_array($value)){
+                if($value != ""){
+                    array_push($dataInput, array('property' => $key,'value' => $value));
+                }
+            }
+        }
+        return $dataInput;
+    }
+
+
+
 }
