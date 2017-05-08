@@ -40,6 +40,8 @@ class Contact extends Model
         }else{
             $contact = new Contact;
         }
+        unset($this->attributes["CustomFields"]);
+
         $contact["attributes"] = $this->attributes;
         $contact->save();
         return count($query) > 0 ? true : false;
