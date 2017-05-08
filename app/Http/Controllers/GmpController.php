@@ -63,17 +63,16 @@ class GmpController extends Controller
                         }
                         $contact->GroupId = $groupID;
                         $contact->save();
-                        $this->update_gmp($groupID,$contact->LeadId,'groupId');
+                        $propertyValue = $groupID;
+                        $propertyName = "groupId";
                     }else{
                         if($propertyName = "email")
                             $propertyName = "E-Mail";
 
                         $contact->{$propertyName} = $propertyValue;
                         $contact->save();
-                       // $this->update_gmp($groupID,$contact->LeadId,'groupId');
                     }
-
-
+                    $this->update_gmp($propertyValue,$contact->LeadId,$propertyName);
                     break;
 
                 case "contact.creation":
@@ -114,7 +113,6 @@ class GmpController extends Controller
         $myemail = "subscribe@rightonmediagroup.com";
         $mypass = "HuF6Ybzu6Oqd";
         $fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'UserField'=>$fieldname,'UserData'=>$groupID,'userId'=>$userId,'svr'=>'UpdateExistingUser');
-        //$fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'UserField'=>'GroupId','UserData'=>$groupID,'userId'=>$userId,'svr'=>'UpdateExistingUser');
         $fields=json_encode($fields);
         $ch = curl_init();
         curl_setopt($ch,CURLOPT_URL,$url);
@@ -135,6 +133,7 @@ class GmpController extends Controller
                 $isexist = Contact::checkfield($key);
                 $contact->$key = $value;
             }
+
             if($contact->gotDuplicates("LeadId")){
                 echo "Have Duplicates CHECK HS";
                 $contact2 = Contact::where("LeadId",$contacts["LeadId"])->first();
