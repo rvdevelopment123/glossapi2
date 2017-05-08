@@ -29,15 +29,15 @@ class GmpController extends Controller
     }
 
     public function hswebhook(){
-      //  $json = '[{"objectId":10801,"propertyName":"email","propertyValue":"REYCHANGE","changeSource":"API","eventId":4083751833,"subscriptionId":3167,"portalId":3088964,"appId":39543,"occurredAt":1493051724096,"subscriptionType":"contact.propertyChange","attemptNumber":0}]';
+        $json = '[{"objectId":10901,"propertyName":"firstname","propertyValue":"REYCHANGE2222","changeSource":"API","eventId":4083751833,"subscriptionId":3167,"portalId":3088964,"appId":39543,"occurredAt":1493051724096,"subscriptionType":"contact.propertyChange","attemptNumber":0}]';
 //Samepl When adding contact
 //[{"eventId":"1","subscriptionId":"3275","portalId":"2845818","occurredAt":"1493224084569","subscriptionType":"contact.creation","attemptNumber":"0","objectId":"123","changeSource":"CRM","changeFlag":"NEW","appId":"39543"}]
         //$json = '[{"objectId":10801,"changeFlag":"NEW","changeSource":"SALES","eventId":2955789214,"subscriptionId":3275,"portalId":3088964,"appId":39543,"occurredAt":1493224673083,"subscriptionType":"contact.creation","attemptNumber":0}]';
 
-        $json = file_get_contents('php://input');
-        $file = fopen("test.txt","a+");
-        echo fwrite($file,$json);
-        fclose($file);
+//        $json = file_get_contents('php://input');
+//        $file = fopen("test.txt","a+");
+//        echo fwrite($file,$json);
+//        fclose($file);
 
             $datahs = json_decode($json,true);
             $objectId = $datahs[0]["objectId"];
@@ -69,8 +69,19 @@ class GmpController extends Controller
                         if($propertyName == "email"){
                             $propertyName = "E-Mail";
                         }
+
                         $contact->{$propertyName} = $propertyValue;
                         $contact->save();
+                        if($propertyName == "E-Mail"){
+                            $propertyName = "email";
+                        }
+                        if($propertyName == "firstname"){
+                            $propertyName = "first_name";
+                        }
+                        if($propertyName == "lastname"){
+                            $propertyName = "last_name";
+                        }
+
                     }
 
                     $this->update_gmp($propertyValue,$contact->LeadId,$propertyName);
@@ -110,6 +121,7 @@ class GmpController extends Controller
     }
 
     public function update_gmp($groupID,$userId,$fieldname){
+        echo "update_gmp";
         $url = 'https://rightonprofit.net/glu/webservice/';
         $myemail = "subscribe@rightonmediagroup.com";
         $mypass = "HuF6Ybzu6Oqd";
@@ -123,7 +135,9 @@ class GmpController extends Controller
         $result = curl_exec($ch);
         curl_close($ch);
         $contacts = json_decode($result, true);
+        echo "GMP Updated";
         var_dump($contacts);
+
 
     }
 
