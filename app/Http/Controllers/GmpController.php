@@ -66,12 +66,13 @@ class GmpController extends Controller
                         $propertyValue = $groupID;
                         $propertyName = "groupId";
                     }else{
-                        if($propertyName = "email")
+                        if($propertyName == "email"){
                             $propertyName = "E-Mail";
-
+                        }
                         $contact->{$propertyName} = $propertyValue;
                         $contact->save();
                     }
+
                     $this->update_gmp($propertyValue,$contact->LeadId,$propertyName);
                     break;
 
