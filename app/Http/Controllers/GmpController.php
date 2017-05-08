@@ -206,7 +206,7 @@ class GmpController extends Controller
         $url = 'https://rightonprofit.net/glu/webservice/';
         $myemail = "subscribe@rightonmediagroup.com";
         $mypass = "HuF6Ybzu6Oqd";
-        $fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'GroupId'=>("580422"),'Country'=>("USA / Canada"),'ContactDataExp'=>
+        $fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'GroupId'=>("580651"),'Country'=>("USA / Canada"),'ContactDataExp'=>
             array(
                 array("USER"=>array("First_Name"=>$mycontact["firstname"], "Last_Name"=>$mycontact["lastname"], "Email_Id"=>$mycontact["email"], "Website"=>"",
                     "Company"=>"", "Phone"=>$mycontact["phone"],  "Zip"=>$mycontact["zip"],
