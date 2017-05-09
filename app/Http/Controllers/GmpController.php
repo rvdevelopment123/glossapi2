@@ -19,15 +19,54 @@ class GmpController extends Controller
             ['580652','RESPONSE'],
             ['580653','WARM'],
             ['580654','DEAL']);
+$arrLeadId = [];
 
         foreach($arrGroupID as $data){
             $contacts =  $this->gmp_api($data[0]);
             $results = $contacts[0]["Results"];
+           // var_dump($results);
+            if(is_array($results)){
+                foreach($results as $key=>$value){
+                    array_push($arrLeadId, $value["LeadId"]);
+                }
+            }
             if(is_array($results))
                 $this->gmp_dbase($results,$data[1]);
         }
+
+        $contact = Contact::whereNotIn('LeadId', $arrLeadId);
+        $this->deleteHSContact($contact->get());
+       $contact->delete();
+
     }
 
+    public function deleteHSContact($contact){
+        $hapikey = "2b8a991b-a9d9-40ef-a29e-29ede6703c4c";
+
+        foreach($contact as $key=>$value)
+        {
+
+            $vid = $value["attributes"]["vid"];
+            if($vid != ""){
+                $endpoint = 'https://api.hubapi.com/contacts/v1/contact/vid/'.$vid.'?hapikey=' . $hapikey;
+                $ch = @curl_init();
+                @curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+                @curl_setopt($ch, CURLOPT_URL, $endpoint);
+                @curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+                @curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $response = @curl_exec($ch);
+                $status_code = @curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $curl_errors = curl_error($ch);
+                @curl_close($ch);
+                echo "curl Errors: " . $curl_errors;
+                echo "\nStatus code: " . $status_code;
+                echo "\nResponse: " . $response;
+                echo "testset";
+            }
+        }
+
+
+    }
     public function hswebhook(){
       //  $json = '[{"objectId":10901,"propertyName":"firstname","propertyValue":"REYCHANGE2222","changeSource":"API","eventId":4083751833,"subscriptionId":3167,"portalId":3088964,"appId":39543,"occurredAt":1493051724096,"subscriptionType":"contact.propertyChange","attemptNumber":0}]';
 //Samepl When adding contact
