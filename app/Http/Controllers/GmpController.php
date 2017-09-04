@@ -41,7 +41,7 @@ $arrLeadId = [];
     }
 
     public function deleteHSContact($contact){
-        $hapikey = "2b8a991b-a9d9-40ef-a29e-29ede6703c4c";
+        $hapikey = env("HAPIKEY");
 
         foreach($contact as $key=>$value)
         {
@@ -171,9 +171,9 @@ $arrLeadId = [];
 
     public function update_gmp($groupID,$userId,$fieldname){
         echo "update_gmp";
-        $url = 'https://rightonprofit.net/glu/webservice/';
-        $myemail = "subscribe@rightonmediagroup.com";
-        $mypass = "HuF6Ybzu6Oqd";
+        $url = env("GMP_ENDPOINT");
+        $myemail = env("GMP_EMAIl");
+        $mypass = env("GMP_PASS");
         $fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'UserField'=>$fieldname,'UserData'=>$groupID,'userId'=>$userId,'svr'=>'UpdateExistingUser');
         $fields=json_encode($fields);
         $ch = curl_init();
@@ -210,7 +210,7 @@ $arrLeadId = [];
     }
 
     public function update_hs($response,$status){
-            $hapikey = "2b8a991b-a9d9-40ef-a29e-29ede6703c4c";
+            $hapikey = env("HAPIKEY");
             $vid = $response["vid"];
             $dataInput = [];
             array_push($dataInput, array('property' => "hs_lead_status",'value' => $status));
@@ -448,7 +448,7 @@ $arrLeadId = [];
         array_push($dataInput, array('property' => "hs_lead_status",'value' => $status));
         $arrInputContact = array('properties' => $dataInput);
         $post_json = json_encode($arrInputContact);
-        $hapikey = "2b8a991b-a9d9-40ef-a29e-29ede6703c4c";
+        $hapikey = env("HAPIKEY");
         $endpoint = 'https://api.hubapi.com/contacts/v1/contact?hapikey=' . $hapikey;
         $ch = @curl_init();
         @curl_setopt($ch, CURLOPT_POST, true);
@@ -520,7 +520,7 @@ echo $property."<br />";
     }
 
     function hscontact_vid($vid){
-        $hapikey = "2b8a991b-a9d9-40ef-a29e-29ede6703c4c";
+        $hapikey = env("HAPIKEY");
         $endpoint = 'https://api.hubapi.com/contacts/v1/contact/vid/'.$vid.'/profile?hapikey='.$hapikey;
         $ch = @curl_init();
         @curl_setopt($ch, CURLOPT_GET, true);
@@ -569,12 +569,12 @@ echo $property."<br />";
 
     public function clubdental(){
 
-          //$json = '{"Form Title":"Contact Us Form","Entry ID":"896","Entry Date":"September 3, 2017 at 9:59 pm","User IP":"112.203.114.85","Source Url":"http:\/\/club-dental.com\/?gf_page=preview&id=1","Name (Prefix)":"","Name (First)":"Rey","Name (Middle)":"","Name (Last)":"Villamar","Name (Suffix)":"","Name":"Rey Villamar","Email":"reyvillamar123@gmail.com","Phone":"(342) 342-3423","Are you in pain?":"Yes","Location":"South Jordan, Utah","Message":"Testset","Text Messages":"Yes"}';
+          $json = '{"Form Title":"Contact Us Form","Entry ID":"896","Entry Date":"September 3, 2017 at 9:59 pm","User IP":"112.203.114.85","Source Url":"http:\/\/club-dental.com\/?gf_page=preview&id=1","Name (Prefix)":"","Name (First)":"Rey","Name (Middle)":"","Name (Last)":"Villamar","Name (Suffix)":"","Name":"Rey Villamar","Email":"reyvillamar1234@gmail.com","Phone":"(342)23423423","Are you in pain?":"Yes","Location":"South Jordan, Utah","Message":"Testset","Text Messages":"Yes"}';
 
-         $json = file_get_contents('php://input');
-        $file = fopen("clubdental.txt","a+");
-        echo fwrite($file,$json);
-        fclose($file);
+        //  $json = file_get_contents('php://input');
+        // $file = fopen("clubdental.txt","a+");
+        // echo fwrite($file,$json);
+        // fclose($file);
 
         // public 'Form Title' => string 'Contact Us Form' (length=15)
         // public 'Entry ID' => string '895' (length=3)
