@@ -569,12 +569,12 @@ echo $property."<br />";
 
     public function clubdental(){
 
-          $json = '{"Form Title":"Contact Us Form","Entry ID":"896","Entry Date":"September 3, 2017 at 9:59 pm","User IP":"112.203.114.85","Source Url":"http:\/\/club-dental.com\/?gf_page=preview&id=1","Name (Prefix)":"","Name (First)":"Rey","Name (Middle)":"","Name (Last)":"Villamar","Name (Suffix)":"","Name":"Rey Villamar","Email":"reyvillamar1234@gmail.com","Phone":"(342)23423423","Are you in pain?":"Yes","Location":"South Jordan, Utah","Message":"Testset","Text Messages":"Yes"}';
+      //    $json = '{"Form Title":"Contact Us Form","Entry ID":"896","Entry Date":"September 3, 2017 at 9:59 pm","User IP":"112.203.114.85","Source Url":"http:\/\/club-dental.com\/?gf_page=preview&id=1","Name (Prefix)":"","Name (First)":"Rey","Name (Middle)":"","Name (Last)":"Villamar","Name (Suffix)":"","Name":"Rey Villamar","Email":"reyvillamar1234@gmail.com","Phone":"(342)23423423","Are you in pain?":"Yes","Location":"South Jordan, Utah","Message":"Testset","Text Messages":"Yes"}';
 
-        //  $json = file_get_contents('php://input');
-        // $file = fopen("clubdental.txt","a+");
-        // echo fwrite($file,$json);
-        // fclose($file);
+         $json = file_get_contents('php://input');
+        $file = fopen("clubdental.txt","a+");
+        echo fwrite($file,$json);
+        fclose($file);
 
         // public 'Form Title' => string 'Contact Us Form' (length=15)
         // public 'Entry ID' => string '895' (length=3)
@@ -593,7 +593,7 @@ echo $property."<br />";
         // public 'Location' => string 'South Jordan, Utah' (length=18)
         // public 'Message' => string 'Testset' (length=7)
         // public 'Text Messages' => string 'Yes' (length=3)
-          
+
             $datahs = json_decode($json,false);
 
             //TODO if the Email is already in GMP Database
