@@ -368,7 +368,7 @@ $arrLeadId = [];
      */
     public function gmp_addcontact_fromcd($contact){
 
-        var_dump($contact);
+        //var_dump($contact);
         $lastname = $contact->{"Name (Last)"};
         $firstname = $contact->{"Name (First)"};
         $email = $contact->{"Email"};
@@ -378,12 +378,10 @@ $arrLeadId = [];
         $allData = [];
         $allData = array("First_Name"=>$firstname, "Last_Name"=>$lastname,
             "Email_Id"=>$email, "Phone"=>$phone);
-            $arrCustomData = [];
+        $arrCustomData = [];
         foreach($contact as $key=>$value){
-          //If this is really slow try to put the added field in the database or text file
+              //If this is really slow try to put the added field in the database or text file
               $this->gmp_checkcustomfield($key);
-              echo $key." ".$value;
-              echo "<br/>";
               array_push($arrCustomData,array("CustomField_Label"=>$key,"CustomField_Value"=>$value));
         }
 
@@ -568,45 +566,25 @@ echo $property."<br />";
         return $dataInput;
     }
 
-
+//This will handle get and post data from Club Dental Form
     public function clubdental(){
 
-        //  $json = '{"Form Title":"Contact Us Form","Entry ID":"896","Entry Date":"September 3, 2017 at 9:59 pm","User IP":"112.203.114.85","Source Url":"http:\/\/club-dental.com\/?gf_page=preview&id=1","Name (Prefix)":"","Name (First)":"Rey","Name (Middle)":"","Name (Last)":"Villamar","Name (Suffix)":"","Name":"Rey Villamar","Email":"reyvillamar1234@gmail.com","Phone":"(342)23423423","Are you in pain?":"Yes","Location":"South Jordan, Utah","Message":"Testset","Text Messages":"Yes"}';
+        //$json = '{"Form Title":"Contact Us Form","Entry ID":"896","Entry Date":"September 3, 2017 at 9:59 pm","User IP":"112.203.114.85","Source Url":"http:\/\/club-dental.com\/?gf_page=preview&id=1","Name (Prefix)":"","Name (First)":"Rey","Name (Middle)":"","Name (Last)":"Villamar","Name (Suffix)":"","Name":"Rey Villamar","Email":"reyvillamar1234@gmail.com","Phone":"(342)23423423","Are you in pain?":"Yes","Location":"South Jordan, Utah","Message":"Testset","Text Messages":"Yes"}';
 
          $json = file_get_contents('php://input');
         $file = fopen("clubdental.txt","a+");
         echo fwrite($file,$json);
         fclose($file);
-
-        // public 'Form Title' => string 'Contact Us Form' (length=15)
-        // public 'Entry ID' => string '895' (length=3)
-        // public 'Entry Date' => string 'September 3, 2017 at 9:59 pm' (length=28)
-        // public 'User IP' => string '112.203.114.85' (length=14)
-        // public 'Source Url' => string 'http://club-dental.com/?gf_page=preview&id=1' (length=44)
-        // public 'Name (Prefix)' => string '' (length=0)
-        // public 'Name (First)' => string 'Rey' (length=3)
-        // public 'Name (Middle)' => string '' (length=0)
-        // public 'Name (Last)' => string 'Villamar' (length=8)
-        // public 'Name (Suffix)' => string '' (length=0)
-        // public 'Name' => string 'Rey Villamar' (length=12)
-        // public 'Email' => string 'reyvillamar@gmail.com' (length=21)
-        // public 'Phone' => string '(342) 342-3423' (length=14)
-        // public 'Are you in pain?' => string 'Yes' (length=3)
-        // public 'Location' => string 'South Jordan, Utah' (length=18)
-        // public 'Message' => string 'Testset' (length=7)
-        // public 'Text Messages' => string 'Yes' (length=3)
-
-            $datahs = json_decode($json,false);
-
-            //TODO if the Email is already in GMP Database
-            //  $isAdded = $this->isAddedInDbase($objectId);
+        $datahs = json_decode($json,false);
+        //TODO if the Email is already in GMP Database
+        //  $isAdded = $this->isAddedInDbase($objectId);
             $isAdded = false;
-            echo $isAdded;
+
             if($isAdded){
-                echo "Already Exist";
+              //  echo "Already Exist";
             }else{
-                echo "Not Exist in the database. TODO Add it";
-                echo "Add it as well in the GMP<br/><br/>";
+              //  echo "Not Exist in the database. TODO Add it";
+              //  echo "Add it as well in the GMP<br/><br/>";
                 $this->gmp_addcontact_fromcd($datahs);
               //  $this->dbase_addcontact($datahs);
             }
