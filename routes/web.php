@@ -17,7 +17,9 @@ Route::get('/', function () {
 
 Route::get('gmp','GmpController@index');
 Route::get('hswebhook','GmpController@hswebhook');
+Route::get('clubdental','GmpController@clubdental');
 Route::post('hswebhook','GmpController@hswebhook');
+Route::post('clubdental','GmpController@clubdental');
 
 Route::group(['middleware' => ['web', 'auth']], function ($router) {
     $router->get('/settings/api/webhooks', 'Mpociot\CaptainHook\Http\WebhookController@all');

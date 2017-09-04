@@ -166,7 +166,6 @@ $arrLeadId = [];
 
     public function isAddedInDbase($vid){
         $contact = Contact::where("vid",$vid)->count();
-
         return $contact > 0 ? true : false;
     }
 
@@ -238,9 +237,29 @@ $arrLeadId = [];
      *This section is to Search Contact to GMP
      */
     public function gmp_api($groupID){
-        $url = 'https://rightonprofit.net/glu/webservice/';
-        $myemail = "subscribe@rightonmediagroup.com";
-        $mypass = "HuF6Ybzu6Oqd";
+        $url = env("GMP_ENDPOINT");
+        $myemail = env("GMP_EMAIl");
+        $mypass = env("GMP_PASS");
+        $fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'searchType'=>'groupId','groupId'=>$groupID,'svr'=>'SearhByUserInput');
+        $fields=json_encode($fields);
+        $ch = curl_init();
+        curl_setopt($ch,CURLOPT_URL,$url);
+        curl_setopt($ch,CURLOPT_POST,count($fields));
+        curl_setopt($ch,CURLOPT_POSTFIELDS, array("Data"=>$fields));
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        $contacts = json_decode($result, true);
+        return $contacts;
+    }
+
+    /**
+     *This section is to Search Contact using Email
+     */
+    public function gmp_searchemail($groupID){
+        $url = env("GMP_ENDPOINT");
+        $myemail = env("GMP_EMAIl");
+        $mypass = env("GMP_PASS");
         $fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'searchType'=>'groupId','groupId'=>$groupID,'svr'=>'SearhByUserInput');
         $fields=json_encode($fields);
         $ch = curl_init();
@@ -254,9 +273,9 @@ $arrLeadId = [];
         return $contacts;
     }
     /**
-     *This section is to add Contact to GMP
+     *This section is to add Contact to GMP from Hubspot
      */
-    public function gmp_addcontact($contact){
+    public function gmp_addcontact_fromhs($contact){
 
         $mycontact = [];
         $mycontact["zip"] = "";
@@ -267,9 +286,9 @@ $arrLeadId = [];
         }
 
 
-        $url = 'https://rightonprofit.net/glu/webservice/';
-        $myemail = "subscribe@rightonmediagroup.com";
-        $mypass = "HuF6Ybzu6Oqd";
+        $url = env("GMP_ENDPOINT");
+        $myemail = env("GMP_EMAIl");
+        $mypass = env("GMP_PASS");
         $fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'GroupId'=>("580651"),'Country'=>("USA / Canada"),'ContactDataExp'=>
             array(
                 array("USER"=>array("First_Name"=>$mycontact["firstname"], "Last_Name"=>$mycontact["lastname"], "Email_Id"=>$mycontact["email"], "Website"=>"",
@@ -293,6 +312,100 @@ $arrLeadId = [];
         echo "testset";
 
 
+        curl_close($ch);
+        $contacts = json_decode($result, true);
+        return $contacts;
+    }
+
+    /**
+     *This section is to add Contact to GMP from Club Dental
+     */
+    public function gmp_checkcustomfield($fieldname){
+      $url = env("GMP_ENDPOINT");
+      $myemail = env("GMP_EMAIl");
+      $mypass = env("GMP_PASS");
+      $fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'FieldName'=>$fieldname,"svr"=>"CheckCustomField");
+      $fields=json_encode($fields);
+      $ch = curl_init();
+      curl_setopt($ch,CURLOPT_URL,$url);
+      curl_setopt($ch,CURLOPT_POST,count($fields));
+      curl_setopt($ch,CURLOPT_POSTFIELDS, array("Data"=>$fields));
+      curl_setopt($ch,CURLOPT_RETURNTRANSFER, 1);
+      $result = curl_exec($ch);
+      $curl_errors = curl_error($ch);
+      echo "curl Errors: " . $curl_errors;
+      echo "\nResponse: " . $result;
+      echo "testset";
+      curl_close($ch);
+      $contacts = json_decode($result, true);
+
+      if($contacts[0]["response"] == "false"){
+          echo "NOT SEEN> TODO CREATE IT";
+        $fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'FieldName'=>$fieldname,'FieldType'=>"textbox","svr"=>"AddcustomField");
+        $fields=json_encode($fields);
+        $ch = curl_init();
+        curl_setopt($ch,CURLOPT_URL,$url);
+        curl_setopt($ch,CURLOPT_POST,count($fields));
+        curl_setopt($ch,CURLOPT_POSTFIELDS, array("Data"=>$fields));
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($ch);
+        $curl_errors = curl_error($ch);
+        echo "curl Errors: " . $curl_errors;
+        echo "\nResponse: " . $result;
+        echo "testset";
+        curl_close($ch);
+        $contacts = json_decode($result, true);
+
+
+      }else{
+        echo "Already Added";
+      }
+      //return $contacts;
+    }
+
+    /**
+     *This section is to add Contact to GMP from Club Dental
+     */
+    public function gmp_addcontact_fromcd($contact){
+
+        var_dump($contact);
+        $lastname = $contact->{"Name (Last)"};
+        $firstname = $contact->{"Name (First)"};
+        $email = $contact->{"Email"};
+        $phone = $contact->{"Phone"};
+        $source = $contact->{"Source Url"};
+         //http://club-dental.com/?gf_page=preview&id=1
+        $allData = [];
+        $allData = array("First_Name"=>$firstname, "Last_Name"=>$lastname,
+            "Email_Id"=>$email, "Phone"=>$phone);
+        foreach($contact as $key=>$value){
+          //If this is really slow try to put the added field in the database or text file
+              $this->gmp_checkcustomfield($key);
+              echo $key." ".$value;
+              echo "<br/>";
+            $allData["$key"] = $value;
+        }
+
+
+        $url = env("GMP_ENDPOINT");
+        $myemail = env("GMP_EMAIl");
+        $mypass = env("GMP_PASS");
+        $GMP_MASTERLIST = env("GMP_MASTERLIST");
+        $fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'GroupId'=>($GMP_MASTERLIST),'ContactDataExp'=>
+            array(
+                array("USER"=>$allData),),'svr'=>'ImportGroupContactFile');
+
+        $fields=json_encode($fields);
+        $ch = curl_init();
+        curl_setopt($ch,CURLOPT_URL,$url);
+        curl_setopt($ch,CURLOPT_POST,count($fields));
+        curl_setopt($ch,CURLOPT_POSTFIELDS, array("Data"=>$fields));
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($ch);
+        $curl_errors = curl_error($ch);
+        echo "curl Errors: " . $curl_errors;
+        echo "\nResponse: " . $result;
+        echo "testset";
         curl_close($ch);
         $contacts = json_decode($result, true);
         return $contacts;
@@ -451,6 +564,52 @@ echo $property."<br />";
             }
         }
         return $dataInput;
+    }
+
+
+    public function clubdental(){
+
+          //$json = '{"Form Title":"Contact Us Form","Entry ID":"896","Entry Date":"September 3, 2017 at 9:59 pm","User IP":"112.203.114.85","Source Url":"http:\/\/club-dental.com\/?gf_page=preview&id=1","Name (Prefix)":"","Name (First)":"Rey","Name (Middle)":"","Name (Last)":"Villamar","Name (Suffix)":"","Name":"Rey Villamar","Email":"reyvillamar123@gmail.com","Phone":"(342) 342-3423","Are you in pain?":"Yes","Location":"South Jordan, Utah","Message":"Testset","Text Messages":"Yes"}';
+
+         $json = file_get_contents('php://input');
+        $file = fopen("clubdental.txt","a+");
+        echo fwrite($file,$json);
+        fclose($file);
+
+        // public 'Form Title' => string 'Contact Us Form' (length=15)
+        // public 'Entry ID' => string '895' (length=3)
+        // public 'Entry Date' => string 'September 3, 2017 at 9:59 pm' (length=28)
+        // public 'User IP' => string '112.203.114.85' (length=14)
+        // public 'Source Url' => string 'http://club-dental.com/?gf_page=preview&id=1' (length=44)
+        // public 'Name (Prefix)' => string '' (length=0)
+        // public 'Name (First)' => string 'Rey' (length=3)
+        // public 'Name (Middle)' => string '' (length=0)
+        // public 'Name (Last)' => string 'Villamar' (length=8)
+        // public 'Name (Suffix)' => string '' (length=0)
+        // public 'Name' => string 'Rey Villamar' (length=12)
+        // public 'Email' => string 'reyvillamar@gmail.com' (length=21)
+        // public 'Phone' => string '(342) 342-3423' (length=14)
+        // public 'Are you in pain?' => string 'Yes' (length=3)
+        // public 'Location' => string 'South Jordan, Utah' (length=18)
+        // public 'Message' => string 'Testset' (length=7)
+        // public 'Text Messages' => string 'Yes' (length=3)
+            echo "Start";
+            $datahs = json_decode($json,false);
+          //  var_dump($datahs);
+            $Title = $datahs->{'Form Title'};
+            echo "End";
+            //TODO if the Email is already in GMP Database
+            //  $isAdded = $this->isAddedInDbase($objectId);
+            $isAdded = false;
+            echo $isAdded;
+            if($isAdded){
+                echo "Already Exist";
+            }else{
+                echo "Not Exist in the database. TODO Add it";
+                echo "Add it as well in the GMP<br/><br/>";
+                $this->gmp_addcontact_fromcd($datahs);
+              //  $this->dbase_addcontact($datahs);
+            }
     }
 
 
