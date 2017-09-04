@@ -378,23 +378,25 @@ $arrLeadId = [];
         $allData = [];
         $allData = array("First_Name"=>$firstname, "Last_Name"=>$lastname,
             "Email_Id"=>$email, "Phone"=>$phone);
+            $arrCustomData = [];
         foreach($contact as $key=>$value){
           //If this is really slow try to put the added field in the database or text file
               $this->gmp_checkcustomfield($key);
               echo $key." ".$value;
               echo "<br/>";
-            $allData["$key"] = $value;
+              array_push($arrCustomData,array("CustomField_Label"=>$key,"CustomField_Value"=>$value));
         }
 
-
+        $allData["GroupCustomFields"] = $arrCustomData;
         $url = env("GMP_ENDPOINT");
         $myemail = env("GMP_EMAIl");
         $mypass = env("GMP_PASS");
         $GMP_MASTERLIST = env("GMP_MASTERLIST");
         $fields = array('userEmail'=>$myemail,'UserPwd'=>$mypass,'GroupId'=>($GMP_MASTERLIST),'ContactDataExp'=>
-            array(
-                array("USER"=>$allData),),'svr'=>'ImportGroupContactFile');
-
+            array(array("USER"=>$allData),),'svr'=>'ImportGroupContactFile');
+// array("USER"=>array(,'GroupCustomFields'=>array(array("CustomField_Label"=>"registeration number","CustomField_Value"=>"05-SCH-0001"),
+// array("CustomField_Label"=>"total number of branches","CustomField_Value"=>"1 Branch"),
+// array("CustomField_Label"=>"Best School awards","CustomField_Value"=>"one Award")
         $fields=json_encode($fields);
         $ch = curl_init();
         curl_setopt($ch,CURLOPT_URL,$url);
@@ -569,7 +571,7 @@ echo $property."<br />";
 
     public function clubdental(){
 
-      //    $json = '{"Form Title":"Contact Us Form","Entry ID":"896","Entry Date":"September 3, 2017 at 9:59 pm","User IP":"112.203.114.85","Source Url":"http:\/\/club-dental.com\/?gf_page=preview&id=1","Name (Prefix)":"","Name (First)":"Rey","Name (Middle)":"","Name (Last)":"Villamar","Name (Suffix)":"","Name":"Rey Villamar","Email":"reyvillamar1234@gmail.com","Phone":"(342)23423423","Are you in pain?":"Yes","Location":"South Jordan, Utah","Message":"Testset","Text Messages":"Yes"}';
+        //  $json = '{"Form Title":"Contact Us Form","Entry ID":"896","Entry Date":"September 3, 2017 at 9:59 pm","User IP":"112.203.114.85","Source Url":"http:\/\/club-dental.com\/?gf_page=preview&id=1","Name (Prefix)":"","Name (First)":"Rey","Name (Middle)":"","Name (Last)":"Villamar","Name (Suffix)":"","Name":"Rey Villamar","Email":"reyvillamar1234@gmail.com","Phone":"(342)23423423","Are you in pain?":"Yes","Location":"South Jordan, Utah","Message":"Testset","Text Messages":"Yes"}';
 
          $json = file_get_contents('php://input');
         $file = fopen("clubdental.txt","a+");
