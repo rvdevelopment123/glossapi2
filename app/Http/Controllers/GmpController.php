@@ -593,11 +593,9 @@ echo $property."<br />";
         // public 'Location' => string 'South Jordan, Utah' (length=18)
         // public 'Message' => string 'Testset' (length=7)
         // public 'Text Messages' => string 'Yes' (length=3)
-            echo "Start";
+          
             $datahs = json_decode($json,false);
-          //  var_dump($datahs);
-            $Title = $datahs->{'Form Title'};
-            echo "End";
+
             //TODO if the Email is already in GMP Database
             //  $isAdded = $this->isAddedInDbase($objectId);
             $isAdded = false;
