@@ -381,7 +381,7 @@ $arrLeadId = [];
         $arrCustomData = [];
         foreach($contact as $key=>$value){
               //If this is really slow try to put the added field in the database or text file
-              //$this->gmp_checkcustomfield($key);
+              $this->gmp_checkcustomfield($key);
               $key = str_ireplace(" ","_",$key);
               echo $key;
               array_push($arrCustomData,array("CustomField_Label"=>$key,"CustomField_Value"=>$value));
