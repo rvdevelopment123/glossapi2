@@ -377,7 +377,7 @@ $arrLeadId = [];
          //http://club-dental.com/?gf_page=preview&id=1
         $allData = [];
         $allData = array("First_Name"=>$firstname, "Last_Name"=>$lastname,
-            "Email_Id"=>$email, "Phone"=>$phone);
+            "Email_Id"=>$email, "Mobile"=>$phone);
         $arrCustomData = [];
         foreach($contact as $key=>$value){
               //If this is really slow try to put the added field in the database or text file
